@@ -1,0 +1,130 @@
+Hướng dẫn code tensorflow: https://github.com/aymericdamien/TensorFlow-Examples/
+
+https://stats.stackexchange.com/questions/181/how-to-choose-the-number-of-hidden-layers-and-nodes-in-a-feedforward-neural-netw
+
+https://github.com/ematvey/tensorflow-seq2seq-tutorials/blob/master/1-seq2seq.ipynb
+
+co ban ve tensorflow: http://vietonrails.com/ai/2016/05/13/co-ban-ve-tensorflow
+
+Bai bao LSTM: https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/43905.pdf
+Mỗi NN có 3 loại lớp (layer): input layer, hidden layer và output layer.
+Việc tạo ra kiến trúc của một mạng nơ ron chính là xác định số lớp cho mỗi loại và số node cho mỗi lớp.
+
+THE INPUT LAYER
+Đối với số nơ-ron chứa lớp này, thông số này được xác định hoàn toàn và duy nhất khi bạn biết được hình dạng của dữ liệu huấn luyện. Cụ thể, số lượng các nơ-ron bao gồm lớp đó bằng với số lượng các tính năng (cột) trong dữ liệu của bạn. Một số cấu hình NN thêm một nút bổ sung cho một thuật ngữ thiên vị.
+
+THE OUTPUT LAYER
+
+Giống như lớp đầu vào(input), mỗi NN đều có một đầu ra chính xác.  Xác định kích thước của nó (số lượng tế bào thần kinh) là đơn giản; nó được xác định hoàn toàn bởi cấu hình mô hình đã chọn.
+
+Là NN của bạn sẽ chạy trong chế độ máy hoặc chế độ hồi quy (ML quy ước sử dụng một thuật ngữ cũng được sử dụng trong thống kê, nhưng gán một ý nghĩa khác nhau cho nó là rất khó hiểu). Chế độ máy: trả về nhãn lớp (ví dụ: "Tài khoản Đặc biệt" / "Tài khoản cơ bản"). Chế độ hồi quy trả lại một giá trị (ví dụ: giá).
+
+Nếu NN là một hồi quy, thì lớp đầu ra có một nút đơn.
+
+Nếu NN là một phân loại, thì nó cũng có một nút duy nhất trừ khi sử dụng softmax trong trường hợp lớp đầu ra có một nút cho mỗi nhãn lớp trong mô hình của bạn.
+
+THE HIDDEN LAYER
+Vì vậy, một số quy tắc đặt số lượng các lớp và kích thước (nơ-ron / lớp) cho cả hai lớp đầu vào và đầu ra. Điều đó để lại các lớp ẩn.
+
+Có bao nhiêu lớp ẩn? Vâng, nếu dữ liệu của bạn được phân tách một cách tuyến tính (mà bạn thường biết bởi thời gian bạn bắt đầu viết mã NN) thì bạn không cần bất kỳ lớp ẩn nào cả. Tất nhiên, bạn không cần một NN để giải quyết dữ liệu của bạn, hoặc nó vẫn sẽ làm công việc.
+
+Ngoài ra, như bạn có thể biết, có một loạt các bình luận về câu hỏi cấu hình lớp ẩn trong NNS (xem Câu hỏi Thường Gặp của NN FAQ sâu sắc và sâu sắc để có một bản tóm tắt tuyệt vời về bình luận đó). Một vấn đề trong chủ đề này có sự đồng thuận là sự khác biệt trong hiệu suất của việc thêm các lớp ẩn: các tình huống trong đó hiệu suất cải thiện với lớp ẩn thứ hai (hoặc thứ ba, ...) là rất ít. Một lớp ẩn là đủ cho phần lớn các vấn đề.
+
+Vậy kích cỡ của lớp ẩn (hidden layer - s) là bao nhiêu nơ-ron? Có một số quy tắc bắt nguồn từ kinh nghiệm, trong số này, thường được dựa vào là 'kích thước tối ưu của lớp ẩn thường giữa kích thước của đầu vào và kích thước của các lớp đầu ra'. Jeff Heaton, tác giả của cuốn Giới thiệu về Mạng Nơ-ron trong Java đưa ra một vài điều nữa.
+
+Tóm lại, đối với hầu hết các vấn đề, có thể người ta có thể thực hiện tốt (ngay cả khi không có bước tối ưu thứ hai) bằng cách thiết lập cấu hình lớp ẩn bằng cách sử dụng hai quy tắc: (i) số lớp ẩn tương đương với một; và (ii) số nơ-ron trong lớp đó là trung bình của các nơ-ron trong các lớp đầu vào và đầu ra.
+
+Optimization of the Network Configuration
+Cắt tỉa mô tả một tập hợp các kỹ thuật để cắt kích thước mạng (bằng các nút không phải lớp) để cải thiện hiệu suất tính toán và đôi khi hiệu suất giải quyết. Ý nghĩa quan trọng của các kỹ thuật này là loại bỏ các nút khỏi mạng trong suốt quá trình đào tạo bằng cách xác định các nút đó nếu không có mạng sẽ không ảnh hưởng đáng kể tới hiệu suất mạng (nghĩa là độ phân giải của dữ liệu). (Ngay cả khi không sử dụng kỹ thuật cắt tỉa chính thức, bạn có thể có được ý tưởng sơ bộ về các nút không quan trọng bằng cách nhìn vào ma trận trọng lượng của bạn sau khi tập luyện, nhìn trọng số rất gần bằng không - đó là các nút ở hai đầu của những trọng lượng đó thường loại bỏ trong khi cắt tỉa.) Rõ ràng, nếu bạn sử dụng thuật toán cắt tỉa trong quá trình đào tạo thì bắt đầu với một cấu hình mạng có nhiều khả năng có các nút thừa (tức là 'prunable') - nói cách khác, khi quyết định về kiến ​​trúc mạng, ở bên cạnh các nơ-ron nhiều hơn, nếu bạn thêm một bước cắt tỉa.
+
+Đặt một cách khác, bằng cách áp dụng một thuật toán cắt tỉa cho mạng của bạn trong quá trình huấn luyện, bạn có thể tiếp cận cấu hình mạng tối ưu; cho dù bạn có thể làm điều đó trong một "lên phía trước" (như một thuật toán dựa trên thuật toán di truyền) Tôi không biết, mặc dù tôi biết rằng bây giờ, điều này hai bước tối ưu hóa là phổ biến hơn.
+
+
+code: https://github.com/ematvey/tensorflow-seq2seq-tutorials/blob/master/model_new.py
+
+https://theneuralperspective.com/2016/11/20/recurrent-neural-network-rnn-part-4-attentional-interfaces/
+
+Sự khác nhau giữa LuongAttention và BahdanauAttention
+
+		1.Luong attention used top hidden layer states in both of encoder and decoder. But Bahdanau attention take concatenation of forward and backward source hidden state (Top Hidden Layer).
+
+		2.In Loung attention they get the decoder hidden state at time t. then Calculate attention scores and from that get the context vector which will be concatenated with hidden state of the decoder and then predict.
+
+		But in the Bahdanau at time t we consider about t-1 hidden state of the decoder. Then we calculate alignment , context vectors as above. But then we concatenate this context with hidden state of the decoder at t-1. So before the softmax this concatenated vector goes inside a lstm unit.
+
+		3.Luong as diffferent types of alignments. Bahdanau has only concat score alignment model. 
+
+
+Một số hàm cơ bản của tf:
+ a = tf.eye(4) : Tạo ma trận đơn vị
+ a.eval() : Hiển thị ma trận
+ r = tf.rang(start, limit, step): tf.range(1,5,1) = [1,2,3,4]
+ d = tf.diag(r):
+    =	[[1,0,0,0],
+    	 [0,2,0,0],
+     	 [0,0,3,0],
+     	 [0,0,0,4]]
+
+Variables: Khoi tao cac tham o
+
+Các quá trình tối ưu hóa nhằm để điều chỉnh các thông số của một mô hình.
+được thực hiện theo 2 giao đoạn
+ + Đầu tiên: goij hàm tf.Variable() để tạo biến và định nghĩa các gía trị được khởi tạo
+ + Sau đó: thực thi phương thức khơi tạo tf.global_variables_initializer(), chạy session để cấp phát bộ nhớ cho Variable và thiết lập gía trị khởi tạo
+
+	init_val = tf.random_normal((1,5),0,1)
+	var = tf.Variable(init_val, name='var')
+	print("pre run: \n{}".format(var))
+	
+	init = tf.global_variables_initializer()
+	with tf.Session() as sess:
+		sess.run(init)
+		post_var = sess.run(var)
+	
+	print("\npost run: \n{}".format(post_var))
+	
+	Out:
+	pre run:
+		Tensor("var/read:0", shape=(1, 5), dtype=float32)
+	post run:
+		[[ 0.85962135	0.64885855	0.25370994	-0.37380791	0.63552463]]
+Sử dụng name_scope để không cần phải gọi phương thức khởi tạo tf.global_variables_initializer()
+
+
+
+Placeholders: khoi tao cac bien (cac gia tri input hay output gi do)
+Một cấu trúc được chỉ định sẵn để cung cấp các gía trị đầu vào. 
+
+Một số loss funtion:
+	MSE (mean squared error-bình phương trung bình lỗi)
+	cross-entropy
+
+y_pred = tf.sigmoid(y_pred)
+loss = y_true*tf.log(y_pred) - (1-y_true)*tf.log(1-y_pred)
+loss = tf.reduce_mean(loss)
+
+Được thay bằng: 
+	tf.nn.sigmoid_cross_entropy_with_logits(labels=,logits=)
+
+Input: 
+ - Thêm PAD cho những câu có kích thước nhỏ hơn những câu có kích thước lớn nhất.
+Output:
+ - Thêm PAD cho những từ có số lượng sense  ít hơn các từ có nhiều  sense nhất.
+
+ https://github.com/zsdonghao/tensorlayer/blob/master/example/tutorial_ptb_lstm.py
+
+
+ Demo semantic tagging: https://supwsd-supwsdweb.1d35.starter-us-east-1.openshiftapps.com/supwsdweb/demo.jsp
+ https://github.com/SI3P/supWSD/tree/master/src/main/java/it/si3p/supwsd/modules/classification
+
+ Tai lieu tham khao: http://www.bioinf.jku.at/publications/older/2604.pdf
+ Casc xu ly output cua cac tu co cac sense khac nhau: http://www.aclweb.org/anthology/W16-5307
+ Mot so mo hinh: https://bitbucket.org/salomons/wsd/src/b34edf6e2fb8?at=master
+
+LSTM_Cell:
+	+ Number_units: Số chiều của mỗi lớp ẩn (https://stackoverflow.com/questions/37901047/what-is-num-units-in-tensorflow-basiclstmcell)
+	(https://i.stack.imgur.com/kGzGU.png)
+
+
+Seq2Seq tensorflow
+https://www.tensorflow.org/versions/master/tutorials/seq2seq
