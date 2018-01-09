@@ -1,0 +1,27 @@
+Tài liệu tham khảo cho việc cải tiếng thêm thông tin tiếng Việt:
+Cách kết hợp ngữ cảnh
+
+http://aclweb.org/anthology/Q/Q17/Q17-1007.pdf
+
+WSD sử dụng BiLSTM
+
+Tong quan LSTM: https://dominhhai.github.io/vi/2017/10/what-is-lstm/
+
+WSD su dung BiLSTM: https://arxiv.org/pdf/1606.03568.pdf
+
+https://arxiv.org/pdf/1606.03568.pdf 
+
+
+https://medium.com/@erikhallstrm/using-the-dynamicrnn-api-in-tensorflow-7237aba7f7ea
+
+vi du seq2seq: https://gist.github.com/ilblackdragon/c92066d9d38b236a21d5a7b729a10f12
+
+Tham khao thu cach su dung attention da ngu
+
+Phân biệt 2 mô hình attention Luong và Bahdanau:
+1.  
+	- Luong Attention sừ dụ trạng thái ẩn (hidden state) của lớp cuối cùng của 2 quá trình encoder và decoder.
+	- Bahdanau Attention sử dụng trang thái ẩn của forward và backward (lớp cuối cùng của encoder) concattenated.
+
+2.
+	- Luong sử dụng trạng thái ẩn của decoder tại thời điểm t. 

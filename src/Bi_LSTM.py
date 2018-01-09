@@ -30,7 +30,7 @@ class Seq2SeqModel(object):
 	
 	GO = 1 #Bat dau cau
 	EOS = 0 #Ket Thuc Cau
-	def __init__(self,encoder_cell, decoder_cell, sequence_length ,input_dim, hidden_dim, output_dim, bilingual = True):
+	def __init__(self,encoder_cell, decoder_cell, sequence_length ,input_dim, hidden_dim, output_dim, nlayer = 1,bilingual = True):
 		
 		self.encoder_cell = encoder_cell
 		self.decoder_cell = decoder_cell
@@ -38,9 +38,11 @@ class Seq2SeqModel(object):
 		self.sequence_length = sequence_length  #Do dai cua chuoi
 		self.input_dim = input_dim				#Khong gian input, Tai moi tu vector 1 x input_dim
 		self.hidden_dim = hidden_dim			#Khong gian hidden, Tai moi LSTM (trong so: input_dim x hidden_dim)
-		self.hidden_dim = output_dim			#Khong gian output, Tai moi out 1 x output_dim
+		self.output_dim = output_dim			#Khong gian output, Tai moi out 1 x output_dim
 		
+		self.num_layers = nlayer  				#So lop LSTM trong tung giai doan
 		self.bilingual = bilingual				#Su dung song ngu hay don ngu
+
 
 		self._make_graph()
 
@@ -56,10 +58,6 @@ class Seq2SeqModel(object):
 		self._init_attention()
 		self._init_decoder()
 
-	def _init_monolinguage(self):
-		pass
-	def _init_bilinguage(self):
-		pass
 	def _init_embeddings(self):
 		with tf.variable_scope("embedding") as scope:
 			
@@ -108,10 +106,12 @@ class Seq2SeqModel(object):
 		)
 	def _init_bidirectional_encoder(self):
 		with tf.variable_scope("Encoder") as scope:
-
+			cell = tf.nn.rnn_cell.DropoutWrapper(self.encoder_cell, output_keep_prob=0.5)  #giam hien tuong overfitting
+			cell = tf.nn.rnn_cell.MultiRNNCell([cell] * self.num_layers, state_is_tuple=True)
+			# cell_bw = tf.nn.rnn_cell.MultiRNNCell([self.encoder_cell] * self.num_layers, state_is_tuple=True)
 			((encoder_fw_outputs, encoder_bw_outputs),(encoder_fw_states, encoder_bw_states)) = (
-				tf.nn.bidirectional_dynamic_rnn(cell_fw = self.encoder_cell,
-					cell_bw = self.encoder_cell,
+				tf.nn.bidirectional_dynamic_rnn(cell_fw = cell,
+					cell_bw = self.cell,
 					inputs = self.encoder_inputs_embedded,
 					sequence_length=self.encoder_inputs_length,
 					time_major = True,
@@ -129,49 +129,39 @@ class Seq2SeqModel(object):
 			elif isinstance(encoder_fw_state, tf.Tensor):
 				self.encoder_state = tf.concat((encoder_fw_state, encoder_bw_state), 1, name='bidirectional_concat')
 
-	
+	def attention_monolinguage(self):
+		with tf.variable_scope("attention") as scope:
+			
+			attention_mechanism = tf.contrib.seq2seq.MahdanauAttention(
+				num_units = self.hidden_dim, 
+				menory = self.encoder_outputs, 
+				memory_sequence_length=self.encoder_inputs_length)
+			
+			cell = tf.nn.rnn_cell.MultiRNNCell([self.decoder_cell] * self.num_layers, state_is_tuple=True)
+			
+			atten_cell = tf.contrib.seq2seq.AttentionWrapper(
+				cell, attention_mechanism, attention_layer_size = self.self.hidden_dim/2)
+
+			output_cell = tf.contrib.rnn.OutputProjectionWrapper(
+				atten_cell, )
+
+	def attention_bilinguage(self):
+		pass
 	def _init_attention(self):
 		if self.bilingual:
-			return self._init_bilinguage()
+			return self.attention_bilinguage()
 		else:
-			return self._init_monolinguage()
+			return self.attention_monolinguage()
+			
 		
 	def _init_decoder(self):
 		with tf.variable_scope("Decoder") as scope:
-			def output_fn(outputs):
-				return tf.nn.softmax(outputs)
-			attention_states = tf.transpose(self.encoder_outputs, [1, 0, 2])
+			attention_mechanism = tf.contrib.seq2seq.MahdanauAttention(
+				num_units = self.hidden_dim, 
+				menory = self.encoder_outputs, 
+				memory_sequence_length=self.encoder_inputs_length)
+			cell = tf.nn.rnn_cell.MultiRNNCell([self.decoder_cell] * self.num_layers, state_is_tuple=True)
 
-			(attention_keys, attention_values, attention_scope_fn, attention_construct_fn) = seq2seq.prepare_attention(
-				attention_states = attention_states,
-				attention_option='bahdahau',
-				num_units=self.decoder_hidden_units,
-				)
-			decoder_fn_train = seq2seq.attention_decoder_fn_train(
-				encoder_state = self.encoder_state,
-				attention_keys = attention_keys,
-				attention_values = attention_values,
-				attention_scope_fn = attention_scope_fn,
-				attention_construct_fn = attention_construct_fn,
-				name = 'attention_decoder'
-				)
-			decoder_fn_inference = seq2seq.attention_decoder_fn_inference(
-				output_fn = output_fn,
-				encoder_state = self.encoder_state,
-				attention_keys = attention_keys,
-				attention_values = attention_values,
-				attention_scope_fn = attention_scope_fn,
-				attention_construct_fn = attention_construct_fn,
-
-				)
-			(self.decoder_outputs_train, self.decoder_state_train, self.decoder_context_state_train) = (
-				seq2seq.dynamic_rnn_decoder(
-					cell=self.decoder_cell,
-					decoder_fn=decoder_fn_train,
-					inputs=self.decoder_train_inputs_embedded,
-					sequence_length=self.decoder_train_length,
-					time_major=True,
-					scope=scope,
-					))
-
-			
+	def softmax(ar):
+		with tf.variable_scope("softmax") as scope:
+			output = tf.nn.softmax(ar)

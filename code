@@ -1,0 +1,22 @@
+Chuẩn bị:
+- Data cần có:
+	- Bo SemCor tieng anh (da co gan nhan ngu nghia), cau truc nhu file xml (nhung khong phai file xml):
+	- Bo ngữ lieu song ngu Anh-Viet: Tieng Anh laf noi dung trong bo semcor, tieng Viet duoc cac chuyen gia dich tu bo SemCor.
+	- Data tiếng Anh: (dữ liệu càng nhiều càng tốt): dung để Word Embedding cho tiếng Anh.
+	- Data tiếng Việt: (thầy cung cấp 3 triệu câu): dùng để Word Embedding cho tiếng Việt.
+- Các bộ Data: 
+	- Song ngu Anh-Viet (Semcor - khoang 11k Cau)
+		- 1k câu dùng để chạy thực nghiệm kiểm tra kết quả (Test).
+		- >9k câu còn lại: dùng để train.
+	- Bộ tiếng Anh (BNC- Tiếng Anh (300k câu), tìm thêm để mô hình được chính xác): Dùng để train mô hình Word Embedding.
+	- Bộ tiếng Việt: (3 Triệu câu): Dùng để train mô hình Word Embedding. 
+- Tiền Xử lý các bộ Data:
+	- Bộ SemCor:
+		- Convert file raw -> file có đuôi .xml
+		- Đọc file xml -> chuyển sang file text.
+			- File text thuần (semcor.txt - file chi chứa các câu tiếng Anh).
+			- Các từ gán nhãn (semcor_wn30.tag - Cac tu duoc tach ).
+			-  File text co danh ten file (semcor_wn30.txt - Mỗi câu sẽ được đánh tên và vị trí câu).
+			- Các câu có gán nhãn (semcor_wn30_tokenized.txt)
+
+	- Embedding: Su dung cac file de train model Embedding: sau do luu lai (https://rare-technologies.com/word2vec-tutorial/)
