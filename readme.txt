@@ -105,3 +105,4 @@ Forward:
 KHởi tạo trong số: "End-to-end Sequence Labeling via Bi-directional LSTM-CNNs-CRF"
     Các tham số W, U, V: thuộc khoản: [-sqrt(6/(r+c)); -sqrt(6/(r+c))]
     Bias: khởi tạo các vector 0, riêng công forget khởi tạo vector 1
+Code mới LSTM: https://bitbucket.org/salomons/wsd/src/b34edf6e2fb8a05d66e8d93c1a3711e41182d816/train.py?at=master&fileviewer=file-view-default
